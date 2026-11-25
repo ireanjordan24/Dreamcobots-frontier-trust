@@ -1,0 +1,38 @@
+name: Buddy Task Outcome Verifier
+
+on:
+  pull_request:
+    paths:
+      - "tools/verify_task_outcome.py"
+      - "tests/test_verify_task_outcome.py"
+      - "docs/BUDDY_TASK_OUTCOME_EVIDENCE_VERIFIER.md"
+      - ".github/workflows/buddy-task-outcome-verifier.yml"
+  push:
+    branches: [main]
+    paths:
+      - "tools/verify_task_outcome.py"
+      - "tests/test_verify_task_outcome.py"
+      - "docs/BUDDY_TASK_OUTCOME_EVIDENCE_VERIFIER.md"
+      - ".github/workflows/buddy-task-outcome-verifier.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: buddy-task-outcome-verifier-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Run deterministic verifier tests
+        run: python3 -m unittest tests.test_verify_task_outcome -v
